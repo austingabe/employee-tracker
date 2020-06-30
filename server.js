@@ -1,4 +1,5 @@
-require("dotenv").config();
+// Dependencies
+
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
@@ -13,15 +14,17 @@ const connection = mysql.createConnection({
     user: "root",
     
     // Your password
-    password: process.env.PASSWORD,
+    password: "",
     database: "company"
 });
 
+// Establish connection to database
 connection.connect(function (err) {
     if (err) throw err;
     start();
 });
 
+// Function that launches application
 const start = () => {
     inquirer
         .prompt({
@@ -36,6 +39,7 @@ const start = () => {
             ]
         })
         .then(answer => {
+            // Based on action selection, different functions will be called
             switch (answer.action) {
                 case "View departments, roles, and employees":
                     viewDRE();
@@ -56,6 +60,7 @@ const start = () => {
         });
 }
 
+// Function that allows user to view what is selected
 const viewDRE = () => {
     inquirer
         .prompt({
@@ -75,7 +80,9 @@ const viewDRE = () => {
                     const deptQuery = "SELECT * FROM department";
                     connection.query(deptQuery, (err, res) => {
                         if (err) throw err;
+                        // Empty array to push all database objects to
                         let departmentArray = [];
+                        // Looping through all rows to push objects to departmentArray
                         for (let i = 0; i < res.length; i++) {
                             departmentArray.push(
                                 {
@@ -84,6 +91,7 @@ const viewDRE = () => {
                                 }
                             )
                         }
+                        // Objects in array are displayed
                         console.table(departmentArray);
                     });
                     break;
@@ -133,6 +141,7 @@ const viewDRE = () => {
         });
 }
 
+// Function that allows user to add departmnet, role, or employee
 const addDRE = () => {
     inquirer
         .prompt({
@@ -257,6 +266,7 @@ const addDRE = () => {
         });
 }
 
+// Function that allows user to update employee role
 const updateEmp = () => {
     inquirer
         .prompt([
@@ -295,6 +305,7 @@ const updateEmp = () => {
             let updateLast = answer.updatelast;
             let updateRole = answer.updaterole;
             let updateManager = answer.updatemanager;
+            // Based on full name, employee's role ID and manager's ID can be updated
             const updateQuery = `UPDATE employee SET role_id = ${updateRole}, manager_id = ${updateManager} WHERE first_name = '${updateFirst}' AND last_name = '${updateLast}';`;
             connection.query(updateQuery, (err, res) => {
                 if (err) throw err;
